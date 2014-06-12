@@ -1,2 +1,5 @@
 DerivedData/Build/
 DerivedData/ModuleCache/
+vendor/bundle
+Pods/
+.bundle/
