@@ -16,28 +16,24 @@ class ViewController: UIViewController {
         var uuid = NSUUID.UUID().UUIDString
         var client = MQTTClient(clientId: uuid)
         
-        func messageHandler(message: MQTTMessage!) {
+        client.messageHandler = {(message: MQTTMessage!) in
             NSLog("message received on %@: %@", message.topic, message.payloadString())
         }
         
-        client.messageHandler = messageHandler
-        
-        func completionHandler(code: MQTTConnectionReturnCode) {
+        NSLog("connecting")
+        client.connectToHost("localhost", {(code: MQTTConnectionReturnCode) in
             if code.value == ConnectionAccepted.value {
                 NSLog("subscribing")
                 client.subscribe("callaloo/#", nil)
             }
-        }
-        
-        NSLog("connecting")
-        client.connectToHost("localhost", completionHandler)
+        })
+
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-
 
 }
 
