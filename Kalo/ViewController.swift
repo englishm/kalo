@@ -17,7 +17,7 @@ class ViewController: UIViewController {
         var client = MQTTClient(clientId: uuid)
         
         func messageHandler(message: MQTTMessage!) {
-            NSLog("message received on /foo: %@", message.payloadString())
+            NSLog("message received on %@: %@", message.topic, message.payloadString())
         }
         
         client.messageHandler = messageHandler
@@ -25,7 +25,7 @@ class ViewController: UIViewController {
         func completionHandler(code: MQTTConnectionReturnCode) {
             if code.value == ConnectionAccepted.value {
                 NSLog("subscribing")
-                client.subscribe("/foo", nil)
+                client.subscribe("callaloo/#", nil)
             }
         }
         
