@@ -12,7 +12,25 @@ class ViewController: UIViewController {
                             
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+        
+        var uuid = NSUUID.UUID().UUIDString
+        var client = MQTTClient(clientId: uuid)
+        
+        func messageHandler(message: MQTTMessage!) {
+            NSLog("message received on /foo: %@", message.payloadString())
+        }
+        
+        client.messageHandler = messageHandler
+        
+        func completionHandler(code: MQTTConnectionReturnCode) {
+            if code.value == ConnectionAccepted.value {
+                NSLog("subscribing")
+                client.subscribe("/foo", nil)
+            }
+        }
+        
+        NSLog("connecting")
+        client.connectToHost("localhost", completionHandler)
     }
 
     override func didReceiveMemoryWarning() {
