@@ -9,6 +9,32 @@
 import UIKit
 
 class ViewController: UIViewController {
+    
+    //
+    // These outlets allow us to connect the status text to the view in the
+    // storyboard.
+    //
+    
+    @IBOutlet var upstairsStatus: UILabel
+    @IBOutlet var downstairsStatus: UILabel
+    
+    func updateStatus(label: UILabel, message: String) {
+        
+        switch message {
+        case "open":
+            label.textColor = UIColor.greenColor()
+            label.text = "Open"
+        case "closed":
+            label.textColor = UIColor.redColor()
+            label.text = "Closed"
+        default:
+            label.textColor = UIColor.yellowColor()
+            label.text = "Error"
+        }
+
+        label.setNeedsDisplay()
+        
+    }
                             
     override func viewDidLoad() {
         
@@ -18,7 +44,6 @@ class ViewController: UIViewController {
         //
         
         super.viewDidLoad()
-        
         
         //
         // Generate ourselves a unique client identifier and initalize a client
@@ -34,8 +59,19 @@ class ViewController: UIViewController {
         //
         
         client.messageHandler = {(message: MQTTMessage!) in
-            NSLog("message received on %@: %@",
-                message.topic, message.payloadString())
+            
+            var status = message.payloadString()
+            NSLog("message received on %@: %@", message.topic, status)
+            
+            switch message.topic! {
+            case "callaloo/upstairs":
+                self.updateStatus(self.upstairsStatus, message: status)
+            case "callaloo/downstairs":
+                self.updateStatus(self.downstairsStatus, message: status)
+            default:
+                NSLog("don't know how to handle this message")
+            }
+            
         }
         
         //
@@ -51,6 +87,8 @@ class ViewController: UIViewController {
                 client.subscribe("callaloo/#", nil)
             }
         })
+        
+        NSLog("whee")
 
     }
 
