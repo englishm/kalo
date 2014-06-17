@@ -20,19 +20,30 @@ class ViewController: UIViewController {
     
     func updateStatus(label: UILabel, message: String) {
         
-        switch message {
-        case "open":
-            label.textColor = UIColor.greenColor()
-            label.text = "Open"
-        case "closed":
-            label.textColor = UIColor.redColor()
-            label.text = "Closed"
-        default:
-            label.textColor = UIColor.yellowColor()
-            label.text = "Error"
+        //
+        // Dispatch the update to the main thread.  If you don't do this, the
+        // labels won't redraw.
+        //
+        
+        dispatch_async(dispatch_get_main_queue()) {
+            
+            switch message {
+                
+            case "open":
+                label.textColor = UIColor.greenColor()
+                label.text = "Open"
+                
+            case "closed":
+                label.textColor = UIColor.redColor()
+                label.text = "Closed"
+                
+            default:
+                label.textColor = UIColor.yellowColor()
+                label.text = "Error"
+                
+            }
+            
         }
-
-        label.setNeedsDisplay()
         
     }
                             
@@ -64,10 +75,13 @@ class ViewController: UIViewController {
             NSLog("message received on %@: %@", message.topic, status)
             
             switch message.topic! {
+            
             case "callaloo/upstairs":
                 self.updateStatus(self.upstairsStatus, message: status)
+                
             case "callaloo/downstairs":
                 self.updateStatus(self.downstairsStatus, message: status)
+              
             default:
                 NSLog("don't know how to handle this message")
             }
@@ -83,13 +97,11 @@ class ViewController: UIViewController {
         NSLog("connecting")
         client.connectToHost("localhost", {(code: MQTTConnectionReturnCode) in
             if code.value == ConnectionAccepted.value {
-                NSLog("subscribing")
+                NSLog("connected; subscribing")
                 client.subscribe("callaloo/#", nil)
             }
         })
         
-        NSLog("whee")
-
     }
 
     override func didReceiveMemoryWarning() {
