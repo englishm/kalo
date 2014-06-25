@@ -74,16 +74,21 @@ class ViewController: UIViewController {
             var status = message.payloadString()
             NSLog("message received on %@: %@", message.topic, status)
             
-            switch message.topic! {
-            
-            case "callaloo/upstairs":
-                self.updateStatus(self.upstairsStatus, message: status)
+            if message.topic {  // check the topic is non-nil
                 
-            case "callaloo/downstairs":
-                self.updateStatus(self.downstairsStatus, message: status)
+                switch message.topic! {
+            
+                case "callaloo/upstairs":
+                    self.updateStatus(self.upstairsStatus, message: status)
+                
+                case "callaloo/downstairs":
+                    self.updateStatus(self.downstairsStatus, message: status)
               
-            default:
-                NSLog("don't know how to handle this message")
+                default:
+                    NSLog("don't know how to handle this message")
+                    
+                }
+                
             }
             
         }
