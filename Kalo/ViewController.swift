@@ -14,11 +14,14 @@ class ViewController: UIViewController {
     // These outlets allow us to connect the status text to the view in the
     // storyboard.
     //
-    
+
+    @IBOutlet var upstairsArrow: UILabel
     @IBOutlet var upstairsStatus: UILabel
+    @IBOutlet var downstairsArrow: UILabel
     @IBOutlet var downstairsStatus: UILabel
+    @IBOutlet var connectionStatus: UILabel
     
-    func updateStatus(label: UILabel, message: String) {
+    func updateStatus(arrow: UILabel, label: UILabel, message: String) {
         
         //
         // Dispatch the update to the main thread.  If you don't do this, the
@@ -27,21 +30,27 @@ class ViewController: UIViewController {
         
         dispatch_async(dispatch_get_main_queue()) {
             
+            var color: UIColor
+            var text: String
+            
             switch message {
                 
             case "open":
-                label.textColor = UIColor.greenColor()
-                label.text = "Open"
+                color = UIColor.greenColor()
+                text = "Open"
                 
             case "closed":
-                label.textColor = UIColor.redColor()
-                label.text = "Closed"
+                color = UIColor.redColor()
+                text = "Closed"
                 
             default:
-                label.textColor = UIColor.yellowColor()
-                label.text = "Error"
+                color = UIColor.purpleColor()
+                text = "Error"
                 
             }
+            
+            arrow.textColor = color
+            label.text = text
             
         }
         
@@ -79,10 +88,12 @@ class ViewController: UIViewController {
                 switch message.topic! {
             
                 case "callaloo/upstairs":
-                    self.updateStatus(self.upstairsStatus, message: status)
+                    self.updateStatus(self.upstairsArrow,
+                        label: self.upstairsStatus, message: status)
                 
                 case "callaloo/downstairs":
-                    self.updateStatus(self.downstairsStatus, message: status)
+                    self.updateStatus(self.downstairsArrow,
+                        label: self.downstairsStatus, message: status)
               
                 default:
                     NSLog("don't know how to handle this message")
@@ -102,6 +113,7 @@ class ViewController: UIViewController {
         NSLog("connecting")
         client.connectToHost("localhost", {(code: MQTTConnectionReturnCode) in
             if code.value == ConnectionAccepted.value {
+                self.connectionStatus.text = "Connected"
                 NSLog("connected; subscribing")
                 client.subscribe("callaloo/#", nil)
             }
