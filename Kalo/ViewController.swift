@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import AVFoundation
 
 class ViewController: UIViewController {
     
@@ -20,6 +21,14 @@ class ViewController: UIViewController {
     @IBOutlet var downstairsArrow: UILabel
     @IBOutlet var downstairsStatus: UILabel
     @IBOutlet var connectionStatus: UILabel
+    @IBOutlet var alertSwitch: UISwitch
+    
+    func speak(phrase: String) {
+        let speechSynth = AVSpeechSynthesizer()
+        let utterance = AVSpeechUtterance(string: phrase)
+        utterance.rate = 0.25
+        speechSynth.speakUtterance(utterance)
+    }
     
     func updateStatus(arrow: UILabel, label: UILabel, message: String) {
         
@@ -36,6 +45,9 @@ class ViewController: UIViewController {
             switch message {
                 
             case "open":
+                if self.alertSwitch.on {
+                    self.speak("Facilities have become available.")
+                }
                 color = UIColor.greenColor()
                 text = "Open"
                 
@@ -111,13 +123,15 @@ class ViewController: UIViewController {
         //
         
         NSLog("connecting")
-        client.connectToHost("localhost", {(code: MQTTConnectionReturnCode) in
-            if code.value == ConnectionAccepted.value {
-                self.connectionStatus.text = "Connected"
-                NSLog("connected; subscribing")
-                client.subscribe("callaloo/#", nil)
+        client.connectToHost("megaweapon.local",
+            {(code: MQTTConnectionReturnCode) in
+                if code.value == ConnectionAccepted.value {
+                    self.connectionStatus.text = "Connected"
+                    NSLog("connected; subscribing")
+                    client.subscribe("callaloo/#", nil)
+                }
             }
-        })
+        )
         
     }
 
